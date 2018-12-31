@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 #
-# A buggy web service in need of a database.
 
 from flask import Flask, request, redirect, url_for
 
-from loganaysisdb import get_three_popular_articles
+from loganalysisdb import ready_to_view_reports, get_three_popular_articles
 
 app = Flask(__name__)
 
@@ -13,7 +12,7 @@ HTML_WRAP = '''\
 <!DOCTYPE html>
 <html>
   <head>
-    <title>DB Forum</title>
+    <title>Log Analysis Reports</title>
     <style>
       h1, form { text-align: center; }
       textarea { width: 400px; height: 100px; }
@@ -25,13 +24,19 @@ HTML_WRAP = '''\
     </style>
   </head>
   <body>
-    <h1>DB Forum</h1>
-    <form method=post>
-      <div><textarea id="content" name="content"></textarea></div>
-      <div><button id="go" type="submit">Popular Articles</button></div>
-      <div><button id="go" type="submit">Popular Authors</button></div>
-      <div><button id="go" type="submit">Error Log Percentage</button></div>
-
+    <h1>Log Analysis Reports</h1>
+    <form method=get>
+     <!-- <div><textarea id="content" name="content"></textarea></div> -->
+      <div>
+      <button id="btn1" type="submit">Popular Articles</button>
+      <button id="btn2" type="submit">Popular Authors</button>
+      <button id="btn3" type="submit">Error Log Percentage</button>
+      </div>
+      <br>
+      <input type="submit" name="Popular Articles" value="popular_articles">
+      <input type="submit" name="Popular Authors" value="popular_authors">
+      <input type="submit" name="Error Log Percentage" value="error_log">
+      <div>
 
     </form>
     <!-- post content will go here -->
@@ -40,9 +45,28 @@ HTML_WRAP = '''\
 </html>
 '''
 
+# HTML template for an individual comment
+POST = '''\
+    <div class=post><em class=date>%s</em><br>%s</div>
+'''
+
 
 @app.route('/', methods=['GET'])
 def main():
+    '''Main page of the news report.'''
+    posts = ready_to_view_reports()
+    # posts = "".join(
+    #                 POST % (date, text)
+    #                 for text, date in
+    #                 ready_to_view_reports()
+    #                 )
+    # html = HTML_WRAP % posts
+    # return html
+    return redirect('LogAnalysis.html')
+
+
+@app.route('/popular_articles', methods=['GET'])
+def popular_articles():
     '''Main page of the news report.'''
 #   posts = "".join(POST % (date, text) for text, date in get_posts())
     posts = "".join(

@@ -1,5 +1,6 @@
 .idea/
 .vscode/
+__pycache__/
 Result 144.xls
 newstables.sql
 newstables1.sql
