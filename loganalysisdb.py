@@ -1,3 +1,4 @@
+#! Python 3.5.2
 # "Log Analysis database code" for news reports.
 
 import datetime
@@ -17,10 +18,10 @@ def ready_to_view_reports():
 def get_three_popular_articles():
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
-    q1 = "select ar.title, count(l.path), 'views' "
+    q1 = "select ar.title, count(l.path) as views, ' - views' "
     q2 = "from log l, articles ar "
     q3 = "where CONCAT('/article/',ar.slug) = l.path "
-    q4 = "group by ar.title"
+    q4 = "group by ar.title order by views desc LIMIT 3"
     select_query = q1 + q2 + q3 + q4
     c.execute(select_query)
     results = c.fetchall()
@@ -41,7 +42,7 @@ def get_three_popular_articles():
 def get_popular_authors():
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
-    q1 = "select au.name, count(l.path) as views "
+    q1 = "select au.name, count(l.path) as views, ' - views' "
     q2 = "from authors au, log l, articles ar "
     q3 = "where CONCAT('/article/',ar.slug) = l.path "
     q4 = "and ar.author = au.id "
@@ -66,14 +67,13 @@ def get_popular_authors():
 def get_percent_error_requests():
     db = psycopg2.connect(database=DBNAME)
     c = db.cursor()
-    q1 = "select l.day, ROUND(l.day_errors/sq.total_requests * 100.0,2)|| "
-    q1a = "' % errors' as percent "
-    q2 = "from ( select sum(day_errors) as total_requests "
-    q2a = "from log_errors_grouped ) as sq, log_errors_grouped l "
-    q2b = "where ROUND(l.day_errors/sq.total_requests * 100.0,2) > 1.00 "
-    q3 = "group by l.day,l.day_errors, sq.total_requests "
-    q4 = "order by percent"
-    select_query = q1 + q1a + q2 + q2a + q2b + q3 + q4
+    q1 = "select time::timestamp::date as day, "
+    q1a = "ROUND(100.00 * SUM(CASE WHEN log.status='404 NOT FOUND' "
+    q1b = "THEN 1 ELSE 0 END) / count(status),2) || ' % errors'"
+    q2 = "from log group by day "
+    q3 = "having ROUND(100.00 * SUM(CASE WHEN log.status='404 NOT FOUND' "
+    q3a = "THEN 1 ELSE 0 END) / count(status),2) > 1.00"
+    select_query = q1 + q1a + q1b + q2 + q3 + q3a
     c.execute(select_query)
     results = c.fetchall()
     print(results)
