@@ -11,7 +11,7 @@ Create a reporting tool that prints out reports (in plain text) based on the dat
 **Pre-requisites:**
 
 1.	Vagrant is up and running if not vagrant up from the root folder where you have vagrant file and log in using vagrant ssh into vm.
-2.	Download/clone repo into the vagrant folder
+2.	Download ZIP file, Unzip & Copy **loganalysis** repo into the vagrant folder
 3.	Postgres sql is up and running and news database exist. 
 4.	Verify if you can successfully log in to Postgres news database from vm prompt.
 ```vagrant@vagrant:/vagrant/loganalysis$psql -d news```
